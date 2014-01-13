@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>サブネットマスク計算機</title>
+
+<link rel="stylesheet" href="css/reset.css">
+
+<!--[if lt IE 9]>
+<script src="js/html5shiv.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+<script src="js/css3-mediaqueries.js"></script>
+<![endif]-->
+
+<body>
+    <div id="contents">
+        <h1>サブネットマスク計算機</h1>
+        <input id="ip" type="text">
+        <input id="submitbutton" type="button" value="計算">
+        <div id="subnet">
+            <div id="calc-subnet"></div>
+            <canvas id="pieChart" width="400" height="400"></canvas>
+            <ul id="subnet-list">
+            </ul>
+        </div><!-- end subnet -->
+        <div id="memo">
+        </div><!-- end memo -->
+    </div><!-- end contents -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="js/Chart.min.js"></script>
+    <script src="js/subnet.js"></script>
+</body>
+</html>
