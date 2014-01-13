@@ -1,9 +1,11 @@
 // グローバル変数
 
 
-// メイン関数
+/*
+ * メイン関数
+ * */
 function main() {
-    //クリック時の動作を submitbutton に定義
+    //計算ボタンクリック時の動作を submitbutton に定義
     $('#submitbutton').click(clickCalc);
 }
 
@@ -50,14 +52,13 @@ function clickSubnetIn() {
         // li 要素に追加する button 要素作成
         var use_button = $('<input>', 
                 {
-                    id:s.start_ip + 'use', 
+                    class:'use_button',
                     type:'button',
                     value:'使用',
-                    onclick:clickUseButton
                 });
         var subnet_button = $('<input>', 
                 {
-                    id:s.start_ip + 'subnet',
+                    class:'subnet_button',
                     type:'button',
                     value:'サブネット',
                 });
@@ -65,18 +66,23 @@ function clickSubnetIn() {
         li.append(use_button);
         li.append(subnet_button);
         $('#subnet-list').append(li)
-        // 使用ボタンクリック時の動作
-        //$().click(clickUseButton);
-        // サブネットボタンクリック時の動作
-        $('#' + s.start_ip + 'subnet').click(clickSubnetButton);
     }
+    // li 要素内のボタンを押した時の動作を指定
+    $('.use_button').click(clickUseButton);
+    $('.subnet_button').click(clickSubnetButton);
     // 円グラフ作成
     createChart(graph_data);
 }
 
 // 使用ボタンクリック時の動作を定義
-function clickUseButton() {
-    alert('USE!');
+function clickUseButton(event) {
+    //メモ欄に追加するアドレス範囲を取得
+    var target_ip_range = $(event.currentTarget).closest('li').text();
+    //メモ欄に追加
+    $('#memo-address').append(target_ip_range + '\n');
+    //ボタンを無効化
+    console.log($(event.target));
+    $(event.target).attr('disabled',true);
 }
 
 // サブネットボタンクリック時の動作
