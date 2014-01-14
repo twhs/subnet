@@ -7,6 +7,9 @@
 function main() {
     //計算ボタンクリック時の動作を submitbutton に定義
     $('#submitbutton').click(clickCalc);
+    // デバッグ用
+    console.log(ntoi('192.168.1.0') >>> 0);
+    console.log(iton(ntoi('192.168.1.0') >>> 0));
 }
 
 // 「計算」を押した時の動作を定義
@@ -87,7 +90,6 @@ function clickUseButton(event) {
 
 // サブネットボタンクリック時の動作
 function clickSubnetButton() {
-    alert('SUBNET!');
 }
 
 // data を引数に円グラフを作成
@@ -98,13 +100,39 @@ function createChart(data) {
 
 // サブネットを計算
 function calcSubnet(ip, before_pref, after_pref) {
-    var subnets = [
-        {"start_ip":"192.168.0.0","end_ip":"192.168.0.254","prefix":after_pref},
-        {"start_ip":"192.168.1.0","end_ip":"192.168.1.254","prefix":after_pref},
-        {"start_ip":"192.168.2.0","end_ip":"192.168.2.254","prefix":after_pref},
-        {"start_ip":"192.168.3.0","end_ip":"192.168.3.254","prefix":after_pref},
-    ];
+    var subnets = [];
+    // 文字列の IP アドレスを数値に変換
+    var ip_addr_int = ntoi(ip);
+    var increment_param = 1 << 32 - after_pref;
+    var 
+
     return subnets;
+}
+
+// オクテット単位の IP アドレスを int 型の数値に変換
+function ntoi(ip_addr_octet) {
+    var octets = ip_addr_octet.split('.');
+    // octets を数値に変換
+    var ip_addr_int = 0;
+    for (var i=0; i < octets.length; ++i) {
+        ip_addr_int = ip_addr_int | (octets[i] << (24 - 8 * i));
+    }
+
+    return ip_addr_int;
+}
+
+// int 型の IP アドレスをオクテット単位の IP アドレスに変換
+function iton(ip_addr_int) {
+    var ip_addr_octet = '';
+    var octets = [];
+    //オクテット単位の文字列に変換
+    for (var i=0; i < 4; ++i) {
+        var tmp = (ip_addr_int >>> (24 - 8 * i)) >>> 0
+        octets.push(tmp);
+        ip_addr_int = ip_addr_int - (tmp << (24 - 8 * i));
+    }
+
+    return octets.join('.');
 }
 
 // ランダムな色コードを返す
