@@ -1,6 +1,12 @@
 // グローバル変数
 var all_1_bit = ntoi('255.255.255.255');
-
+var colors = [
+    '#2d8587',
+    '#cddb94',
+    '#87c2d7',
+    '#113311',
+    '#f3e8f7',
+];
 
 /*
  * メイン関数
@@ -8,7 +14,15 @@ var all_1_bit = ntoi('255.255.255.255');
 function main() {
     //計算ボタンクリック時の動作を submitbutton に定義
     $('#submitbutton').click(clickCalc);
-    // デバッグ用
+    //クリアボタンの動作を定義
+    $('#clear-button').click(function(){
+        $('#calc-subnet').empty();
+        $('#subnet-list').empty();
+        $('#memo-address').empty();
+        var canvas = $("#pieChart");
+        var ctx = $("#pieChart").get(0).getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
 }
 
 // 「計算」を押した時の動作を定義
@@ -46,20 +60,20 @@ function clickSubnetIn() {
     var graph_data = [];
     for (var i=0; i < subnets.length; ++i) {
         s = subnets[i];
-        graph_data.push({value:100/subnets.length,color:getColor()});
+        graph_data.push({value:100/subnets.length,color:colors[i % colors.length]});
         // li 要素作成
-        var li_text = s.start_ip + '〜' + s.end_ip;
+        var li_text = s.network_addr + ':' + s.start_ip + '〜' + s.end_ip;
         var li = $('<li>', {id:s.start_ip, text:li_text});
         // li 要素に追加する button 要素作成
         var use_button = $('<input>', 
                 {
-                    class:'use_button',
+                    class:'use_button btn btn-primary',
                     type:'button',
                     value:'使用',
                 });
         var subnet_button = $('<input>', 
                 {
-                    class:'subnet_button',
+                    class:'subnet_button btn btn-info',
                     type:'button',
                     value:'サブネット',
                 });
@@ -86,7 +100,23 @@ function clickUseButton(event) {
 }
 
 // サブネットボタンクリック時の動作
-function clickSubnetButton() {
+function clickSubnetButton(event) {
+   // サブネットするネットワークアドレスを取得
+   var tmp_addr = $(event.currentTarget).closest('li').text().split(':')[0].split('/');
+   var network_addr = tmp_addr[0];
+   var prefix = tmp_addr[1];
+   // 現在表示しているものをクリア
+   $('#subnet-list').empty();
+   $('#calc-subnet').empty();
+   // フォームを追加
+   var subnet_num = 32 - prefix - 2;
+   // 分割するアドレスを表示
+   var h2 = $('<h2>', {id:'main-ip',text:network_addr + '/' + prefix});
+   var input_number = $('<input>',{type: 'number',id:'input_number', min:0 , max: subnet_num});
+   h2.append(input_number);
+   $('#calc-subnet').append(h2);
+   // 分割数入力欄のクリック時の動作
+   $('#input_number').click(clickSubnetIn);
 }
 
 // data を引数に円グラフを作成
@@ -105,6 +135,13 @@ function calcSubnet(ip, before_pref, after_pref) {
     // サブネットの増分値を求める
     var increment_param = 1 << 32 - after_pref;
     // サブネットを求める
+    for (var s_ip = ip_addr_int; s_ip <= max_ip_addr_in_subnets ;s_ip += increment_param){
+        subnets.push({
+            'network_addr':iton(s_ip) + '/' + after_pref,
+            'start_ip': iton(s_ip | 1), 
+            'end_ip':iton(s_ip | Math.pow(2, 32 - after_pref) - 2)
+        });
+    }
 
     return subnets;
 }
@@ -137,7 +174,10 @@ function iton(ip_addr_int) {
 
 // ランダムな色コードを返す
 function getColor() {
-   return "#0000";
+    // 0 ~ 99 のランダムな数値を生成
+    var random_num = Math.floor(Math.random() * 100);
+
+    return colors[random_num % colors.length];
 }
 
 main();
