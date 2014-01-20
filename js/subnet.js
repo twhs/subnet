@@ -1,4 +1,5 @@
 // グローバル変数
+var all_1_bit = ntoi('255.255.255.255');
 
 
 /*
@@ -8,8 +9,6 @@ function main() {
     //計算ボタンクリック時の動作を submitbutton に定義
     $('#submitbutton').click(clickCalc);
     // デバッグ用
-    console.log(ntoi('192.168.1.0') >>> 0);
-    console.log(iton(ntoi('192.168.1.0') >>> 0));
 }
 
 // 「計算」を押した時の動作を定義
@@ -36,11 +35,10 @@ function clickCalc() {
 function clickSubnetIn() {
     // 初期化処理
     $('#subnet-list').empty();
-    console.log('clickSubnetin');
-    var main_ip = $('#main_ip').text().split('/');
+    var main_ip = $('#main-ip').text().split('/');
     var ip_addr = main_ip[0];
-    var before_pref = main_ip[1];
-    var after_pref = $('#input_number').val();
+    var before_pref = parseInt(main_ip[1]);
+    var after_pref = parseInt($('#input_number').val()) + before_pref;
     // サブネットを計算
     var subnets = calcSubnet(ip_addr, before_pref, after_pref);
     // 各サブネットをリストで表示 & グラフ用データ作成
@@ -84,7 +82,6 @@ function clickUseButton(event) {
     //メモ欄に追加
     $('#memo-address').append(target_ip_range + '\n');
     //ボタンを無効化
-    console.log($(event.target));
     $(event.target).attr('disabled',true);
 }
 
@@ -103,8 +100,11 @@ function calcSubnet(ip, before_pref, after_pref) {
     var subnets = [];
     // 文字列の IP アドレスを数値に変換
     var ip_addr_int = ntoi(ip);
+    // サブネットの範囲で最大値となる IP アドレスを求める
+    var max_ip_addr_in_subnets = ntoi(ip) | (Math.pow(2, after_pref - before_pref) - 1) << 32 - after_pref;
+    // サブネットの増分値を求める
     var increment_param = 1 << 32 - after_pref;
-    var 
+    // サブネットを求める
 
     return subnets;
 }
