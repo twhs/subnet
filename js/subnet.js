@@ -58,13 +58,19 @@ function clickSubnetIn() {
     // 各サブネットをリストで表示 & グラフ用データ作成
     var s = '';
     var graph_data = [];
+    // サブネットを格納する table を作成
+    var trh = $('<tr>');
+    var th_network = $('<th>', {scope:"row", text:"ネットワークアドレス"});
+    var th_startip = $('<th>', {scope:"row", text:"開始 IP アドレス"});
+    var th_endip = $('<th>', {scope:"row", text:"終了 IP アドレス"});
+    var th_use = $('<th>');
+    var th_subnet = $('<th>');
+    trh.append(th_network, th_startip, th_endip, th_use, th_subnet);
+    $("#subnet-list").append(trh);
     for (var i=0; i < subnets.length; ++i) {
         s = subnets[i];
         graph_data.push({value:100/subnets.length,color:colors[i % colors.length]});
-        // li 要素作成
-        var li_text = s.network_addr + ':' + s.start_ip + '〜' + s.end_ip;
-        var li = $('<li>', {id:s.start_ip, text:li_text});
-        // li 要素に追加する button 要素作成
+        // td 要素に追加する button 要素作成
         var use_button = $('<input>', 
                 {
                     class:'use_button btn btn-primary',
@@ -77,12 +83,18 @@ function clickSubnetIn() {
                     type:'button',
                     value:'サブネット',
                 });
+        // table に格納
+        var tr = $('<tr>');
+        var td_network = $('<td>', {text:s.network_addr});
+        var td_startip = $('<td>', {text:s.start_ip});
+        var td_endip = $('<td>', {text:s.end_ip});
+        var td_use = $('<td>').append(use_button);
+        var td_subnet = $('<td>').append(subnet_button);
         // DOM に追加
-        li.append(use_button);
-        li.append(subnet_button);
-        $('#subnet-list').append(li)
+        tr.append(td_network, td_startip, td_endip, td_use, td_subnet);
+        $("#subnet-list").append(tr);
     }
-    // li 要素内のボタンを押した時の動作を指定
+    // table 要素内のボタンを押した時の動作を指定
     $('.use_button').click(clickUseButton);
     $('.subnet_button').click(clickSubnetButton);
     // 円グラフ作成
@@ -92,22 +104,28 @@ function clickSubnetIn() {
 // 使用ボタンクリック時の動作を定義
 function clickUseButton(event) {
     //メモ欄に追加するアドレス範囲を取得
-    var target_ip_range = $(event.currentTarget).closest('li').text();
+    var tr = $(event.currentTarget).closest('tr')[0];
+    var start_ip = $(tr.cells[1]).text();
+    var end_ip = $(tr.cells[2]).text();
+    var use_ip_range = start_ip + ' - ' + end_ip ;
     //メモ欄に追加
-    $('#memo-address').append(target_ip_range + '\n');
+    $('#memo-address').append(use_ip_range + '\n');
     //ボタンを無効化
     $(event.target).attr('disabled',true);
+    $(event.currentTarget).closest('button').attr('disabled', true);
 }
 
 // サブネットボタンクリック時の動作
 function clickSubnetButton(event) {
    // サブネットするネットワークアドレスを取得
-   var tmp_addr = $(event.currentTarget).closest('li').text().split(':')[0].split('/');
+   var tr = $(event.currentTarget).closest('tr')[0];
+   var tmp_addr = $(tr.cells[0]).text().split('/');
    var network_addr = tmp_addr[0];
    var prefix = tmp_addr[1];
    // 現在表示しているものをクリア
    $('#subnet-list').empty();
    $('#calc-subnet').empty();
+   clearCanvas();
    // フォームを追加
    var subnet_num = 32 - prefix - 2;
    // 分割するアドレスを表示
@@ -138,8 +156,8 @@ function calcSubnet(ip, before_pref, after_pref) {
     for (var s_ip = ip_addr_int; s_ip <= max_ip_addr_in_subnets ;s_ip += increment_param){
         subnets.push({
             'network_addr':iton(s_ip) + '/' + after_pref,
-            'start_ip': iton(s_ip | 1), 
-            'end_ip':iton(s_ip | Math.pow(2, 32 - after_pref) - 2)
+            'start_ip': iton(s_ip | 1) + '/' + after_pref, 
+            'end_ip':iton(s_ip | Math.pow(2, 32 - after_pref) - 2) + '/' + after_pref
         });
     }
 
@@ -178,6 +196,12 @@ function getColor() {
     var random_num = Math.floor(Math.random() * 100);
 
     return colors[random_num % colors.length];
+}
+
+// canvas 要素内のクリア
+function clearCanvas() {
+    var ctx = $("#pieChart").get(0).getContext("2d");
+    var pieChart = "";
 }
 
 main();
